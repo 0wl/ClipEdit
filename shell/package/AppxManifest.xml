@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ClipEdit Explorer menu package. Supported extensions must match src/shared/formats.ts. -->
+<Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+    xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+    xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+    xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+    IgnorableNamespaces="uap rescap com desktop4 desktop5">
+
+  <Identity
+      Name="ClipEditMenu"
+      Publisher="CN=ClipEdit"
+      Version="1.0.0.0"
+      ProcessorArchitecture="x64"/>
+
+  <Properties>
+    <DisplayName>ClipEdit shell menu</DisplayName>
+    <PublisherDisplayName>ClipEdit</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.26100.0"/>
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="ClipEditMenuApp"
+                 Executable="ClipEditStub.exe"
+                 EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+          DisplayName="ClipEdit shell menu"
+          Description="Adds Edit with ClipEdit to the Windows 11 context menu for video files."
+          BackgroundColor="transparent"
+          Square150x150Logo="Assets\Square150x150Logo.png"
+          Square44x44Logo="Assets\Square44x44Logo.png"
+          AppListEntry="none"/>
+
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:SurrogateServer DisplayName="ClipEdit Menu Surrogate">
+              <com:Class Id="1734921E-184F-4E77-BB8A-1A0D3DE23586"
+                         Path="ClipEditMenu.dll"
+                         ThreadingModel="STA"/>
+            </com:SurrogateServer>
+          </com:ComServer>
+        </com:Extension>
+
+        <desktop4:Extension Category="windows.fileExplorerContextMenus">
+          <desktop4:FileExplorerContextMenus>
+            <desktop5:ItemType Type=".mp4">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".m4v">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".mov">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".mkv">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".webm">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".avi">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".wmv">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".flv">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".mpg">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".mpeg">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".ts">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".m2ts">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".mts">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".3gp">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+            <desktop5:ItemType Type=".ogv">
+              <desktop5:Verb Id="ClipEditEdit" Clsid="1734921E-184F-4E77-BB8A-1A0D3DE23586"/>
+            </desktop5:ItemType>
+          </desktop4:FileExplorerContextMenus>
+        </desktop4:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust"/>
+  </Capabilities>
+</Package>

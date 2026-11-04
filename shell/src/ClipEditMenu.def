@@ -1,0 +1,4 @@
+LIBRARY ClipEditMenu
+EXPORTS
+    DllGetClassObject       PRIVATE
+    DllCanUnloadNow         PRIVATE

@@ -1,0 +1,13 @@
+node_modules/
+out/
+dist/
+release/
+resources/ffmpeg/
+tests/fixtures/
+test-results/
+playwright-report/
+shell/build/
+*.pfx
+.impeccable/
+*.blockmap
+*.tsbuildinfo

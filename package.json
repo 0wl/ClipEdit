@@ -1,0 +1,45 @@
+{
+  "name": "clipedit",
+  "productName": "ClipEdit",
+  "version": "1.0.0",
+  "description": "Fast, minimal clip editor for Windows, built right into the right-click menu",
+  "author": "0wl",
+  "license": "MIT",
+  "homepage": "https://github.com/0wl/QuickEdit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0wl/QuickEdit.git"
+  },
+  "private": true,
+  "main": "./out/main/index.js",
+  "scripts": {
+    "fetch-ffmpeg": "node scripts/fetch-ffmpeg.mjs",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "fixtures": "node scripts/make-fixtures.mjs",
+    "e2e": "playwright test",
+    "build:shell": "cmd /c shell\\build.cmd",
+    "dist": "electron-vite build && electron-builder --win --x64",
+    "dist:dir": "electron-vite build && electron-builder --win --x64 --dir"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "electron": "^45.2.2",
+    "electron-builder": "^26.18.0",
+    "electron-vite": "^6.0.0",
+    "lucide-react": "^1.68.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
+  }
+}

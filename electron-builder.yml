@@ -1,0 +1,38 @@
+appId: com.clipedit.app
+productName: ClipEdit
+executableName: ClipEdit
+copyright: Copyright © 2026 0wl
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - package.json
+  - '!**/*.map'
+extraResources:
+  - from: resources/ffmpeg
+    to: ffmpeg
+  - from: resources/shell
+    to: shell
+  - from: resources/icon.ico
+    to: icon.ico
+asar: true
+electronLanguages:
+  - en-US
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.ico
+  artifactName: ClipEdit-Setup-${version}.${ext}
+nsis:
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ClipEdit
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+  include: build/installer.nsh
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
