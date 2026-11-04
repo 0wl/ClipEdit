@@ -8,10 +8,10 @@
 
 Right-click a video, drag the `[` `]` handles, and export. That's it.
 
-[![Download](https://img.shields.io/github/v/release/0wl/QuickEdit?label=Download&style=for-the-badge&color=fafafa&labelColor=1a1a1a)](https://github.com/0wl/QuickEdit/releases/latest)
+[![Download](https://img.shields.io/github/v/release/0wl/clipedit?label=Download&style=for-the-badge&color=fafafa&labelColor=1a1a1a)](https://github.com/0wl/clipedit/releases/latest)
 ![Windows 11](https://img.shields.io/badge/Windows-11-fafafa?style=for-the-badge&labelColor=1a1a1a&logo=windows11&logoColor=white)
 ![GPU](https://img.shields.io/badge/GPU-NVENC%20%7C%20AMF%20%7C%20QuickSync-fafafa?style=for-the-badge&labelColor=1a1a1a)
-[![License](https://img.shields.io/github/license/0wl/QuickEdit?style=for-the-badge&color=fafafa&labelColor=1a1a1a)](LICENSE)
+[![License](https://img.shields.io/github/license/0wl/clipedit?style=for-the-badge&color=fafafa&labelColor=1a1a1a)](LICENSE)
 
 <img src="docs/images/editor.png" alt="ClipEdit editor" width="860" />
 
@@ -49,7 +49,7 @@ Cutting a few seconds out of a recording shouldn't mean opening a full video edi
 
 ## Install
 
-1. Download **`ClipEdit-Setup-x.y.z.exe`** from the [latest release](https://github.com/0wl/QuickEdit/releases/latest).
+1. Download **`ClipEdit-Setup-x.y.z.exe`** from the [latest release](https://github.com/0wl/clipedit/releases/latest).
 2. Run it. ClipEdit installs per-user, so no admin rights are needed. It adds Start menu and desktop shortcuts.
 3. Optional: open **Settings → Add to context menu**.
    - Windows asks for administrator approval once. This lets it trust ClipEdit's self-signed menu extension (the certificate is added to `LocalMachine\TrustedPeople`).
