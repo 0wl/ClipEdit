@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Download, FileVideo, FolderOpen, Pause, Play, Volume1, Volume2, VolumeX, X, AlertTriangle } from 'lucide-react'
+import { Check, Crop, Download, FileVideo, FolderOpen, Pause, Play, RotateCcw, Volume1, Volume2, VolumeX, X, AlertTriangle } from 'lucide-react'
 import type { EncoderInfo, OpenResult, Settings } from '@shared/api'
 import { formatBytes, formatDuration, formatFps, formatTime } from '@shared/time'
 import { clampRange, fullRange, moveHandle, snapToFrame, type Range } from '@shared/trim'
-import { Brand, Crumbs, NavItem, ProgressBar, SkipIcon, Tip } from '../components/ui'
+import { ASPECT_PRESETS, aspectLabel, evenCrop, fitAspect, fullCrop, isFullCrop, type CropRect } from '@shared/crop'
+import { AspectIcon, Brand, Crumbs, NavItem, ProgressBar, SkipIcon, Tip } from '../components/ui'
+import CropOverlay from '../editor/CropOverlay'
 import Timeline from '../editor/Timeline'
 import ExportFlow from '../editor/ExportFlow'
 import { useVideoClock } from '../editor/useVideoClock'
@@ -42,6 +44,15 @@ export default function Editor(props: {
   const [exporting, setExporting] = useState(false)
   const [volume, setVolume] = useState(settings.volume)
   const [muted, setMuted] = useState(settings.muted)
+  // Crop, in source pixels (display orientation). Full frame = no crop.
+  const W = info.width || 1920
+  const H = info.height || 1080
+  const [cropMode, setCropMode] = useState(false)
+  const [crop, setCrop] = useState<CropRect>(() => fullCrop(W, H))
+  const [ratio, setRatio] = useState<number | null>(null)
+  const [pictureAspect, setPictureAspect] = useState(W / H)
+  const cropActive = !isFullCrop(crop, W, H)
+  const outCrop = cropActive ? evenCrop(crop, W, H) : null
   const triedProxy = useRef(clip.needsProxy)
   const timeRef = useRef<HTMLSpanElement>(null)
   const trackWidth = useRef(0)
@@ -100,6 +111,7 @@ export default function Editor(props: {
     const onPlay = (): void => setPlaying(true)
     const onPause = (): void => setPlaying(false)
     const onMeta = (): void => {
+      if (video.videoWidth && video.videoHeight) setPictureAspect(video.videoWidth / video.videoHeight)
       // Audio-only playback means the video codec isn't decodable here.
       if (video.videoWidth === 0 && !triedProxy.current) buildProxy(true, 'video codec not supported by the player')
     }
@@ -159,6 +171,21 @@ export default function Editor(props: {
     setExporting(true)
   }, [exporting, range, video])
 
+  const toggleCrop = useCallback(() => {
+    if (exporting) return
+    setCropMode((m) => !m)
+  }, [exporting])
+
+  const choosePreset = (r: number | null): void => {
+    setRatio(r)
+    if (r != null) setCrop(fitAspect(r, W, H))
+  }
+
+  const resetCrop = (): void => {
+    setRatio(null)
+    setCrop(fullCrop(W, H))
+  }
+
   // Window title shows the open file.
   useEffect(() => {
     document.title = `${info.name} — ClipEdit`
@@ -177,6 +204,18 @@ export default function Editor(props: {
       // Text inputs keep their keys; the volume slider keeps its arrows.
       if (el?.tagName === 'INPUT' && ((el as HTMLInputElement).type !== 'range' || isArrow)) return
       const fps = info.fps || 30
+      if (cropMode && (k === 'Escape' || k === 'Enter')) {
+        // Enter always finishes cropping, even if an aspect button still has focus
+        // (preventDefault stops that button from being activated again).
+        e.preventDefault()
+        setCropMode(false)
+        return
+      }
+      if (!e.ctrlKey && !e.altKey && !e.metaKey && (k === 'c' || k === 'C')) {
+        e.preventDefault()
+        toggleCrop()
+        return
+      }
       if (e.ctrlKey && k.toLowerCase() === 'e') {
         e.preventDefault()
         startExport()
@@ -211,7 +250,7 @@ export default function Editor(props: {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [exporting, info.fps, startExport, onClose, togglePlay, video, seek, skip, duration, range])
+  }, [exporting, info.fps, startExport, onClose, togglePlay, video, seek, skip, duration, range, cropMode, toggleCrop])
 
   const VolIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2
   const resolution = info.width && info.height ? `${info.width}×${info.height}` : ''
@@ -253,6 +292,9 @@ export default function Editor(props: {
             </span>
           </div>
           <div>
+            Crop video <kbd>C</kbd>
+          </div>
+          <div>
             Jump to start / end
             <span className="kbd-group">
               <kbd>Home</kbd>
@@ -264,11 +306,61 @@ export default function Editor(props: {
 
       <main className="main">
         <div className="editor">
-          <Crumbs items={[{ label: 'Recent', onClick: exporting ? undefined : onClose }, { label: info.name }]} />
+          <div className="editor-head">
+            <Crumbs items={[{ label: 'Recent', onClick: exporting ? undefined : onClose }, { label: info.name }]} />
+            <div className="toolbar" role="toolbar" aria-label="Video tools" data-testid="toolbar">
+              {cropMode && (
+                <>
+                  {ASPECT_PRESETS.map((p) => (
+                    <Tip key={p.id} label={p.label} placement="bottom">
+                      <button
+                        className="tool-btn"
+                        aria-label={p.label}
+                        aria-pressed={ratio === p.ratio}
+                        onClick={() => choosePreset(p.ratio)}
+                        data-testid={`aspect-${p.id}`}
+                      >
+                        <AspectIcon ratio={p.ratio} />
+                      </button>
+                    </Tip>
+                  ))}
+                  <span className="tool-sep" />
+                  <Tip label="Reset crop" placement="bottom">
+                    <button className="tool-btn" aria-label="Reset crop" disabled={!cropActive} onClick={resetCrop} data-testid="crop-reset">
+                      <RotateCcw size={18} strokeWidth={1.8} />
+                    </button>
+                  </Tip>
+                  <span className="tool-sep" />
+                </>
+              )}
+              {outCrop && (
+                <span className="tool-chip tnum" data-testid="crop-size" title="Output size after cropping">
+                  <Crop size={14} strokeWidth={2} />
+                  {outCrop.w}×{outCrop.h}
+                  {aspectLabel(outCrop.w, outCrop.h) && <span className="k">{aspectLabel(outCrop.w, outCrop.h)}</span>}
+                </span>
+              )}
+              <Tip label={cropMode ? 'Done cropping' : 'Crop'} kbd={cropMode ? ['Enter'] : ['C']} placement="bottom" align="end">
+                <button
+                  className={`tool-btn${cropMode ? ' primary' : ''}`}
+                  aria-label={cropMode ? 'Done cropping' : 'Crop'}
+                  aria-pressed={cropMode}
+                  onClick={toggleCrop}
+                  disabled={exporting}
+                  data-testid="crop-toggle"
+                >
+                  {cropMode ? <Check size={18} strokeWidth={2.2} /> : <Crop size={18} strokeWidth={1.8} />}
+                </button>
+              </Tip>
+            </div>
+          </div>
 
           <div className={`stage${playing ? '' : ' paused'}`} onClick={togglePlay} data-testid="stage">
             {src && <video ref={setVideo} src={src} preload="auto" playsInline data-testid="video" />}
-            {src && !fatal && (
+            {src && !fatal && (cropMode || cropActive) && (
+              <CropOverlay W={W} H={H} aspect={pictureAspect} crop={crop} editing={cropMode} ratio={ratio} onChange={setCrop} />
+            )}
+            {src && !fatal && !cropMode && (
               <div className="stage-bigplay">
                 <Play size={28} fill="currentColor" strokeWidth={0} style={{ marginLeft: 3 }} />
               </div>
@@ -387,6 +479,7 @@ export default function Editor(props: {
         <ExportFlow
           info={info}
           range={range}
+          crop={outCrop}
           settings={settings}
           encoders={encoders}
           onExportingChange={onExportingChange}

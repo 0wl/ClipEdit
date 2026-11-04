@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path'
 import { VIDEO_EXTENSIONS, isVideoPath, dirOf, stemOf, decidePlayback, type ProbeInfo } from '@shared/formats'
 import { buildExportArgs, buildProxyArgs, containerFromPath, targetVideoBitrate, type EncoderId } from '@shared/ffargs'
 import { progressFraction, etaSeconds } from '@shared/progress'
+import { evenCrop, isFullCrop } from '@shared/crop'
 import type { ExportRequest, ExportResult, OpenResult, Settings } from '@shared/api'
 import {
   probe, filmstrip, frameDataUrl, runWithProgress, safeUnlink, proxyPathFor, pruneProxies, ffmpegVersion, type RunHandle
@@ -250,6 +251,10 @@ function registerIpc(): void {
     }
     const info = await probeCached(req.input)
     const len = Math.max(0, req.end - req.start)
+    const crop = req.crop && info.width && info.height && !isFullCrop(req.crop, info.width, info.height)
+      ? evenCrop(req.crop, info.width, info.height)
+      : null
+    const areaRatio = crop ? (crop.w * crop.h) / (info.width * info.height) : 1
     const gpuWanted = store.getSettings().gpu
     const gpu = gpuWanted ? (await detectGpuEncoder())?.id : undefined
     const started = Date.now()
@@ -262,9 +267,10 @@ function registerIpc(): void {
         start: req.start,
         end: req.end,
         encoder,
-        videoBitrate: targetVideoBitrate(info),
+        videoBitrate: targetVideoBitrate(info, areaRatio),
         hasAudio: info.hasAudio,
-        container: containerFromPath(req.output)
+        container: containerFromPath(req.output),
+        crop
       })
       exportRun = runWithProgress(args, (t, speed) => {
         const fraction = progressFraction(t, len)

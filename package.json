@@ -1,7 +1,7 @@
 {
   "name": "clipedit",
   "productName": "ClipEdit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Free, open-source alternative to Clipchamp: a fast, minimal clip editor for Windows, built into the right-click menu",
   "author": "0wl",
   "license": "MIT",

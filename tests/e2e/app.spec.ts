@@ -290,6 +290,91 @@ test.describe('playback & timeline', () => {
   })
 })
 
+test.describe('crop', () => {
+  test('crop toolbar, edge drag, aspect preset, move, export at cropped size', async () => {
+    const { app, page, userData } = await launch({ file: SAMPLE })
+    await waitForVideo(page)
+    await page.evaluate(() => window.clipedit.setSettings({ gpu: false }))
+    await app.close()
+    const l = await launch({ file: SAMPLE, userData })
+    const p = l.page
+    await waitForVideo(p)
+
+    // Toolbar is right-aligned above the video.
+    const tb = (await p.getByTestId('toolbar').boundingBox())!
+    const stage = (await p.getByTestId('stage').boundingBox())!
+    expect(Math.abs(tb.x + tb.width - (stage.x + stage.width))).toBeLessThan(3)
+    expect(tb.y + tb.height).toBeLessThan(stage.y)
+    // Icon-only button with a hover label.
+    const toggle = p.getByTestId('crop-toggle')
+    await expect(toggle).toHaveText('')
+    await toggle.hover()
+    await expect(p.locator('.tip-wrap:has([data-testid=crop-toggle]) .tip')).toHaveCSS('opacity', '1')
+    await expect(p.locator('.tip-wrap:has([data-testid=crop-toggle]) .tip')).toContainText('Crop')
+
+    await toggle.click()
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+    await expect(p.getByTestId('aspect-9:16')).toBeVisible()
+    await expect(p.getByTestId('crop-size')).toHaveCount(0) // full frame = no crop yet
+
+    // Drag the left slider a quarter of the way in.
+    const content = (await p.getByTestId('crop-content').boundingBox())!
+    const w = (await p.getByTestId('crop-edge-w').boundingBox())!
+    await drag(p, { x: w.x + w.width / 2, y: w.y + w.height / 2 }, { x: w.x + w.width / 2 + content.width / 4, y: w.y + w.height / 2 })
+    const size1 = await p.getByTestId('crop-size').innerText()
+    const [cw, ch] = size1.match(/(\d+)×(\d+)/)!.slice(1).map(Number)
+    expect(cw).toBeGreaterThan(940)
+    expect(cw).toBeLessThan(980)
+    expect(ch).toBe(720)
+    // Outside the crop is dimmed + desaturated.
+    expect(await p.locator('.crop-dim').first().evaluate((el) => getComputedStyle(el).backdropFilter)).toContain('grayscale')
+
+    // 9:16 preset, then slide the box sideways; size stays 404x720.
+    await p.getByTestId('aspect-9:16').click()
+    await expect(p.getByTestId('aspect-9:16')).toHaveAttribute('aria-pressed', 'true')
+    await expect(p.getByTestId('crop-size')).toContainText('404×720')
+    await expect(p.getByTestId('crop-size')).toContainText('9:16')
+    const box = (await p.getByTestId('crop-box').boundingBox())!
+    await drag(p, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, { x: box.x + box.width / 2 - 150, y: box.y + box.height / 2 })
+    const moved = (await p.getByTestId('crop-box').boundingBox())!
+    expect(moved.x).toBeLessThan(box.x - 100)
+    await expect(p.getByTestId('crop-size')).toContainText('404×720')
+
+    // Enter finishes cropping; the crop stays visible and clicks play the video again.
+    await p.keyboard.press('Enter')
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    await expect(p.getByTestId('crop-edge-w')).toHaveCount(0)
+    await expect(p.getByTestId('crop-box')).toBeVisible()
+    await p.getByTestId('stage').click()
+    await expect(p.getByTestId('play-toggle')).toHaveAttribute('data-state', 'playing')
+    await p.getByTestId('stage').click()
+
+    // Export a 4s range: confirmation shows the crop, output has the cropped size.
+    const out = join(tempDir(), 'cropped.mp4')
+    await stubDialogs(l.app, { save: out })
+    await seekTo(p, 2)
+    await p.keyboard.press('i')
+    await seekTo(p, 6)
+    await p.keyboard.press('o')
+    await p.keyboard.press('Control+e')
+    await expect(p.getByTestId('confirm-crop')).toContainText('404×720')
+    await p.getByTestId('confirm-export').click()
+    await expect(p.getByTestId('export-done')).toBeVisible({ timeout: 60_000 })
+    const dims = execFileSync(join(ROOT, 'resources', 'ffmpeg', 'ffprobe.exe'), [
+      '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', out
+    ]).toString().trim()
+    expect(dims).toBe('404,720')
+    expect(ffprobe(out).duration).toBeCloseTo(4, 0)
+    await p.getByTestId('export-done-ok').click()
+
+    // Reset removes the crop.
+    await p.keyboard.press('c')
+    await p.getByTestId('crop-reset').click()
+    await expect(p.getByTestId('crop-size')).toHaveCount(0)
+    await l.app.close()
+  })
+})
+
 test.describe('export', () => {
   async function exportRange(gpu: boolean, start: number, end: number, out: string) {
     const { app, page, userData } = await launch({ file: SAMPLE })

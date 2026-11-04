@@ -1016,9 +1016,323 @@ kbd,
   gap: 14px;
 }
 
-.editor .crumbs {
+.editor-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 42px;
+}
+
+.editor-head .crumbs {
+  flex: 1;
+  min-width: 0;
   margin-bottom: 0;
-  padding-right: 140px; /* keep clear of the caption buttons */
+}
+
+/* Tool strip above the video, right-aligned (crop + aspect presets). */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.tool-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #bdbdbd;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.08s var(--ease);
+}
+
+.tool-btn:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.tool-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.tool-btn[aria-pressed='true'] {
+  background: #262626;
+  border-color: #363636;
+  color: var(--text);
+}
+
+.tool-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.tool-btn.primary:hover:not(:disabled) {
+  background: #fff;
+  color: var(--on-accent);
+}
+
+.tool-btn:disabled {
+  opacity: 0.35;
+}
+
+.tool-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: #2a2a2a;
+}
+
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 9px;
+  margin-right: 4px;
+  border-radius: 8px;
+  background: #1b1b1b;
+  border: 1px solid #292929;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.tool-chip svg {
+  color: var(--text-3);
+}
+
+.tool-chip .k {
+  color: var(--text-3);
+  font-weight: 520;
+}
+
+/* ------------------------------------------------------------- crop -- */
+
+.crop-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.crop-layer.editing {
+  pointer-events: auto;
+}
+
+.crop-content {
+  position: absolute;
+  touch-action: none;
+}
+
+/* Outside the crop: desaturated and darkened, not hidden. */
+.crop-dim {
+  position: absolute;
+  background: rgba(14, 14, 14, 0.38);
+  backdrop-filter: grayscale(0.9) brightness(0.6);
+  pointer-events: none;
+}
+
+.crop-box {
+  position: absolute;
+  outline: 1.5px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.crop-layer:not(.editing) .crop-box {
+  outline-color: rgba(255, 255, 255, 0.35);
+  box-shadow: none;
+}
+
+.crop-layer.editing .crop-box {
+  cursor: move;
+}
+
+.crop-grid {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+  opacity: 0.55;
+  transition: opacity 0.15s var(--ease);
+}
+
+.crop-box.dragging .crop-grid {
+  opacity: 1;
+}
+
+.crop-grid.v1,
+.crop-grid.v2 {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.crop-grid.v1 {
+  left: 33.333%;
+}
+
+.crop-grid.v2 {
+  left: 66.666%;
+}
+
+.crop-grid.h1,
+.crop-grid.h2 {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.crop-grid.h1 {
+  top: 33.333%;
+}
+
+.crop-grid.h2 {
+  top: 66.666%;
+}
+
+/* Edge sliders: a pill on each side, with a generous invisible grab area. */
+.crop-edge {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+
+.crop-edge.n,
+.crop-edge.s {
+  left: 22px;
+  right: 22px;
+  height: 18px;
+  cursor: ns-resize;
+}
+
+.crop-edge.n {
+  top: -9px;
+}
+
+.crop-edge.s {
+  bottom: -9px;
+}
+
+.crop-edge.e,
+.crop-edge.w {
+  top: 22px;
+  bottom: 22px;
+  width: 18px;
+  cursor: ew-resize;
+}
+
+.crop-edge.w {
+  left: -9px;
+}
+
+.crop-edge.e {
+  right: -9px;
+}
+
+.crop-bar {
+  border-radius: 99px;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.55);
+  transition: transform 0.12s var(--ease);
+}
+
+.crop-edge.n .crop-bar,
+.crop-edge.s .crop-bar {
+  width: 38px;
+  height: 5px;
+}
+
+.crop-edge.e .crop-bar,
+.crop-edge.w .crop-bar {
+  width: 5px;
+  height: 38px;
+}
+
+.crop-edge:hover .crop-bar {
+  transform: scale(1.15);
+}
+
+/* Corner brackets. */
+.crop-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  z-index: 2;
+}
+
+.crop-corner::before,
+.crop-corner::after {
+  content: '';
+  position: absolute;
+  background: var(--accent);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.crop-corner::before {
+  width: 20px;
+  height: 4px;
+}
+
+.crop-corner::after {
+  width: 4px;
+  height: 20px;
+}
+
+.crop-corner.nw {
+  left: -4px;
+  top: -4px;
+  cursor: nwse-resize;
+}
+
+.crop-corner.se {
+  right: -4px;
+  bottom: -4px;
+  cursor: nwse-resize;
+}
+
+.crop-corner.ne {
+  right: -4px;
+  top: -4px;
+  cursor: nesw-resize;
+}
+
+.crop-corner.sw {
+  left: -4px;
+  bottom: -4px;
+  cursor: nesw-resize;
+}
+
+.crop-corner.nw::before,
+.crop-corner.nw::after {
+  left: 0;
+  top: 0;
+}
+
+.crop-corner.ne::before,
+.crop-corner.ne::after {
+  right: 0;
+  top: 0;
+}
+
+.crop-corner.sw::before,
+.crop-corner.sw::after {
+  left: 0;
+  bottom: 0;
+}
+
+.crop-corner.se::before,
+.crop-corner.se::after {
+  right: 0;
+  bottom: 0;
 }
 
 .stage {
@@ -1745,6 +2059,28 @@ kbd,
   opacity: 1;
   transform: translate(-50%, 0);
   transition-delay: 0.35s;
+}
+
+/* Below the trigger (used near the top of the window, under the caption buttons). */
+.tip-wrap.below .tip {
+  bottom: auto;
+  top: calc(100% + 10px);
+  transform: translate(-50%, -4px);
+}
+
+.tip-wrap.below:hover .tip {
+  transform: translate(-50%, 0);
+}
+
+/* Right-anchored so it never runs past the window edge. */
+.tip-wrap.end .tip {
+  left: auto;
+  right: 0;
+  transform: translate(0, -4px);
+}
+
+.tip-wrap.end:hover .tip {
+  transform: translate(0, 0);
 }
 
 /* ---------------------------------------------------------------- toast -- */

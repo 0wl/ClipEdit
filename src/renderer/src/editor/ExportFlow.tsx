@@ -5,6 +5,7 @@ import type { ProbeInfo } from '@shared/formats'
 import { ENCODER_LABELS, estimateSize } from '@shared/ffargs'
 import { formatBytes, formatTime } from '@shared/time'
 import type { Range } from '@shared/trim'
+import { aspectLabel, type CropRect } from '@shared/crop'
 import { Modal, ProgressBar } from '../components/ui'
 import { cleanIpcError } from '../util'
 
@@ -20,18 +21,20 @@ type Phase =
 export default function ExportFlow(props: {
   info: ProbeInfo
   range: Range
+  crop: CropRect | null // even-sized output crop, or null for the full frame
   settings: Settings
   encoders: EncoderInfo
   onClose: (message?: string) => void
   onExportingChange: (b: boolean) => void
 }): ReactNode {
-  const { info, range, settings, encoders, onClose, onExportingChange } = props
+  const { info, range, crop, settings, encoders, onClose, onExportingChange } = props
   const [phase, setPhase] = useState<Phase>({ kind: 'confirm' })
   const mounted = useRef(true)
   useEffect(() => () => void (mounted.current = false), [])
 
   const len = range.end - range.start
-  const est = estimateSize(info, len)
+  const areaRatio = crop && info.width && info.height ? (crop.w * crop.h) / (info.width * info.height) : 1
+  const est = estimateSize(info, len, areaRatio)
   const gpu = settings.gpu && encoders.gpu ? encoders.gpu : null
   const encoderText = gpu ? `GPU · ${gpu.label}` : 'CPU · x264'
 
@@ -50,7 +53,7 @@ export default function ExportFlow(props: {
     })
     let res: ExportResult
     try {
-      res = await api.startExport({ input: info.path, output, start: range.start, end: range.end })
+      res = await api.startExport({ input: info.path, output, start: range.start, end: range.end, crop })
     } catch (e) {
       res = { ok: false, canceled: false, error: cleanIpcError(e), log: '' }
     } finally {
@@ -84,6 +87,18 @@ export default function ExportFlow(props: {
             <dd>
               {formatTime(range.start)} → {formatTime(range.end)}
             </dd>
+            {crop && (
+              <>
+                <dt>Crop</dt>
+                <dd data-testid="confirm-crop">
+                  {crop.w}×{crop.h}
+                  {aspectLabel(crop.w, crop.h) && <span className="was">{aspectLabel(crop.w, crop.h)}</span>}
+                  <span className="was">
+                    of {info.width}×{info.height}
+                  </span>
+                </dd>
+              </>
+            )}
             <dt>Estimated size</dt>
             <dd data-testid="confirm-size">
               ≈ {formatBytes(est)}

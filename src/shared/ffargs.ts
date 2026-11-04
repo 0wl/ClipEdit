@@ -1,5 +1,6 @@
 // FFmpeg argument builders + bitrate / size estimation (pure, unit-tested).
 import type { ExportContainer, ProbeInfo } from './formats'
+import type { CropRect } from './crop'
 
 export type EncoderId = 'libx264' | 'h264_nvenc' | 'h264_amf' | 'h264_qsv'
 
@@ -23,19 +24,21 @@ type BitrateInput = Pick<ProbeInfo, 'videoBitrate' | 'bitRate' | 'audioBitrate' 
  * stay comparable (and the size estimate is accurate). More efficient source codecs
  * get a bump because H.264 needs more bits for the same quality.
  */
-export function targetVideoBitrate(info: BitrateInput): number {
+export function targetVideoBitrate(info: BitrateInput, areaRatio = 1): number {
   const audio = info.hasAudio ? info.audioBitrate || AUDIO_BITRATE : 0
   let base = info.videoBitrate
   if (!base && info.bitRate) base = info.bitRate - audio
   if (!base && info.size && info.duration) base = (info.size * 8) / info.duration - audio
   if (!base || !Number.isFinite(base)) base = 8_000_000
   if (['hevc', 'vp9', 'av1'].includes(info.videoCodec)) base *= 1.3
+  // Cropping keeps the same bits per pixel for the remaining area.
+  base *= Math.min(1, Math.max(0.01, areaRatio))
   return Math.round(Math.min(MAX_VIDEO_BITRATE, Math.max(MIN_VIDEO_BITRATE, base)))
 }
 
 /** Estimated output size in bytes for a clip of `length` seconds. */
-export function estimateSize(info: BitrateInput, length: number): number {
-  const total = targetVideoBitrate(info) + (info.hasAudio ? AUDIO_BITRATE : 0)
+export function estimateSize(info: BitrateInput, length: number, areaRatio = 1): number {
+  const total = targetVideoBitrate(info, areaRatio) + (info.hasAudio ? AUDIO_BITRATE : 0)
   return Math.round(((total * Math.max(0, length)) / 8) * 1.01 + 4096)
 }
 
@@ -48,6 +51,7 @@ export interface ExportJob {
   videoBitrate: number
   hasAudio: boolean
   container: ExportContainer
+  crop?: CropRect | null // even-sized, in display pixels
 }
 
 const sec = (n: number): string => n.toFixed(3)
@@ -82,6 +86,7 @@ export function buildExportArgs(job: ExportJob): string[] {
       args.push('-c:v', 'h264_qsv', '-preset', 'medium', ...rate)
       break
   }
+  if (job.crop) args.push('-vf', `crop=${job.crop.w}:${job.crop.h}:${job.crop.x}:${job.crop.y}`)
   args.push('-pix_fmt', 'yuv420p')
   if (job.hasAudio) args.push('-c:a', 'aac', '-b:a', String(AUDIO_BITRATE))
   if (job.container === 'mp4' || job.container === 'mov') args.push('-movflags', '+faststart')

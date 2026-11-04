@@ -38,6 +38,7 @@ Cutting a few seconds out of a recording shouldn't mean opening a full video edi
 
 - **Right-click → Edit with ClipEdit**: a top-level entry in the Windows 11 context menu for every common video format, not hidden under *Show more options*.
 - **Trim by dragging**: `[` and `]` handles on a thumbnail timeline. The video previews the exact frame while you drag, and you can slide the whole selection.
+- **Crop to any aspect ratio**: drag the sliders on the top, bottom and sides of the picture, or pick a preset: Free, 16:9, 9:16 (Shorts / TikTok / Reels), 1:1 or 4:3. Everything outside the crop is dimmed and grayed out, so you see the final framing before you export.
 - **Frame-accurate export**: clips are re-encoded to H.264, so cuts land exactly where you put them, not on the nearest keyframe.
 - **GPU acceleration**: NVIDIA NVENC, AMD AMF or Intel Quick Sync, detected automatically. If the GPU fails, the export falls back to the CPU.
 - **Export flow**:
@@ -49,6 +50,9 @@ Cutting a few seconds out of a recording shouldn't mean opening a full video edi
 - **Native Windows 11 look**: a dark theme with a Mica sidebar.
 
 <table>
+  <tr>
+    <td colspan="2"><img src="docs/images/crop.png" alt="Cropping to 9:16" /></td>
+  </tr>
   <tr>
     <td width="68%"><img src="docs/images/export.png" alt="Export confirmation" /></td>
     <td><img src="docs/images/context-menu.png" alt="Windows 11 context menu" /></td>
@@ -77,6 +81,8 @@ Cutting a few seconds out of a recording shouldn't mean opening a full video edi
 | Step one frame | `Shift` + `←` `→` |
 | Set start / end at the playhead | `I` / `O` |
 | Jump to start / end | `Home` / `End` |
+| Crop mode on / off | `C` |
+| Finish cropping | `Enter` or `Esc` |
 | Open a video | `Ctrl` + `O` |
 | Export | `Ctrl` + `E` |
 | Close the video | `Ctrl` + `W` |

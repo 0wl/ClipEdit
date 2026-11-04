@@ -1,6 +1,7 @@
 // Types shared by main, preload and renderer for the window.clipedit bridge.
 import type { ProbeInfo } from './formats'
 import type { EncoderId } from './ffargs'
+import type { CropRect } from './crop'
 
 export interface RecentItem {
   path: string
@@ -36,6 +37,7 @@ export interface ExportRequest {
   output: string
   start: number
   end: number
+  crop?: CropRect | null // display pixels; null/undefined = full frame
 }
 
 export interface ExportProgress {

@@ -110,9 +110,16 @@ export function Checkbox(props: {
   )
 }
 
-export function Tip({ label, kbd, children }: { label: string; kbd?: string[]; children: ReactNode }): ReactNode {
+export function Tip(props: {
+  label: string
+  kbd?: string[]
+  children: ReactNode
+  placement?: 'top' | 'bottom'
+  align?: 'center' | 'end'
+}): ReactNode {
+  const { label, kbd, children, placement = 'top', align = 'center' } = props
   return (
-    <span className="tip-wrap">
+    <span className={`tip-wrap${placement === 'bottom' ? ' below' : ''}${align === 'end' ? ' end' : ''}`}>
       {children}
       <span className="tip" role="tooltip">
         {label}
@@ -172,6 +179,26 @@ export function Modal(props: { children: ReactNode; onEscape?: () => void; label
         {props.children}
       </div>
     </div>
+  )
+}
+
+/** A rectangle drawn in the given aspect ratio (dashed with corner ticks for "free"). */
+export function AspectIcon({ ratio }: { ratio: number | null }): ReactNode {
+  if (ratio == null) {
+    return (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+        <path d="M3 7V4.5A1.5 1.5 0 0 1 4.5 3H7M13 3h2.5A1.5 1.5 0 0 1 17 4.5V7M17 13v2.5a1.5 1.5 0 0 1-1.5 1.5H13M7 17H4.5A1.5 1.5 0 0 1 3 15.5V13" />
+        <path d="M8 10h4M10 8v4" strokeOpacity="0.7" />
+      </svg>
+    )
+  }
+  const max = 15
+  const w = ratio >= 1 ? max : max * ratio
+  const h = ratio >= 1 ? max / ratio : max
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <rect x={10 - w / 2} y={10 - h / 2} width={w} height={h} rx="2" stroke="currentColor" strokeWidth="1.75" />
+    </svg>
   )
 }
 
