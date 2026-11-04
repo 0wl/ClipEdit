@@ -4,14 +4,16 @@
 
 # ClipEdit
 
-**A fast, minimal clip editor for Windows, built right into the right-click menu.**
+**A free, open-source alternative to Clipchamp.**<br/>
+A fast, minimal clip editor for Windows, built right into the right-click menu.
 
 Right-click a video, drag the `[` `]` handles, and export. That's it.
 
-[![Download](https://img.shields.io/github/v/release/0wl/clipedit?label=Download&style=for-the-badge&color=fafafa&labelColor=1a1a1a)](https://github.com/0wl/clipedit/releases/latest)
+![Free & open source](https://img.shields.io/badge/Free%20%26-Open%20Source-fafafa?style=for-the-badge&labelColor=1a1a1a)
+[![Download](https://img.shields.io/github/v/release/0wl/ClipEdit?label=Download&style=for-the-badge&color=fafafa&labelColor=1a1a1a)](https://github.com/0wl/ClipEdit/releases/latest)
 ![Windows 11](https://img.shields.io/badge/Windows-11-fafafa?style=for-the-badge&labelColor=1a1a1a&logo=windows11&logoColor=white)
 ![GPU](https://img.shields.io/badge/GPU-NVENC%20%7C%20AMF%20%7C%20QuickSync-fafafa?style=for-the-badge&labelColor=1a1a1a)
-[![License](https://img.shields.io/github/license/0wl/clipedit?style=for-the-badge&color=fafafa&labelColor=1a1a1a)](LICENSE)
+[![License](https://img.shields.io/github/license/0wl/ClipEdit?style=for-the-badge&color=fafafa&labelColor=1a1a1a)](LICENSE)
 
 <img src="docs/images/editor.png" alt="ClipEdit editor" width="860" />
 
@@ -21,7 +23,16 @@ Right-click a video, drag the `[` `]` handles, and export. That's it.
 
 ## Why
 
-Cutting a few seconds out of a recording shouldn't mean opening a full video editor. ClipEdit opens straight from File Explorer, plays the video, lets you mark the part you want and saves it as a new file. The original is never touched.
+Cutting a few seconds out of a recording shouldn't mean opening a full video editor. Windows' built-in option, **Clipchamp**, is a heavy, cluttered editor: it wants you signed in, takes a while to load, buries a simple trim under timelines, templates and stock media, and keeps steering you toward a paid plan.
+
+**ClipEdit does one thing and does it fast.** It's completely free and open source, with no account, no subscription, no watermark and no upsells. It opens straight from File Explorer, plays the video, lets you mark the part you want and saves it as a new file. The original is never touched.
+
+| | ClipEdit | Clipchamp |
+| --- | :---: | :---: |
+| Price | **Free, forever** | Free tier + paid plans |
+| Open source | ✅ | ❌ |
+| Account / sign-in | **Not needed** | Microsoft account |
+| Interface | **A player, a timeline and an Export button** | Full editor with templates, stock media and upsells |
 
 ## Features
 
@@ -49,7 +60,7 @@ Cutting a few seconds out of a recording shouldn't mean opening a full video edi
 
 ## Install
 
-1. Download **`ClipEdit-Setup-x.y.z.exe`** from the [latest release](https://github.com/0wl/clipedit/releases/latest).
+1. Download **`ClipEdit-Setup-x.y.z.exe`** from the [latest release](https://github.com/0wl/ClipEdit/releases/latest).
 2. Run it. ClipEdit installs per-user, so no admin rights are needed. It adds Start menu and desktop shortcuts.
 3. Optional: open **Settings → Add to context menu**.
    - Windows asks for administrator approval once. This lets it trust ClipEdit's self-signed menu extension (the certificate is added to `LocalMachine\TrustedPeople`).
@@ -109,5 +120,7 @@ ClipEdit pins FFmpeg 7.1.1 because its NVENC support works with NVIDIA drivers f
 ## License
 
 ClipEdit is released under the [MIT License](LICENSE).
+
+ClipEdit is an independent project. It isn't affiliated with or endorsed by Microsoft. Clipchamp is a trademark of Microsoft.
 
 The installer bundles [FFmpeg](https://ffmpeg.org) (the GPL build by [gyan.dev](https://www.gyan.dev/ffmpeg/builds/)), which is licensed separately under the GPLv3. FFmpeg's source code is available at [ffmpeg.org](https://ffmpeg.org/download.html).

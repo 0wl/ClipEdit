@@ -2,13 +2,13 @@
   "name": "clipedit",
   "productName": "ClipEdit",
   "version": "1.0.0",
-  "description": "Fast, minimal clip editor for Windows, built right into the right-click menu",
+  "description": "Free, open-source alternative to Clipchamp: a fast, minimal clip editor for Windows, built into the right-click menu",
   "author": "0wl",
   "license": "MIT",
-  "homepage": "https://github.com/0wl/clipedit",
+  "homepage": "https://github.com/0wl/ClipEdit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/0wl/clipedit.git"
+    "url": "https://github.com/0wl/ClipEdit.git"
   },
   "private": true,
   "main": "./out/main/index.js",
